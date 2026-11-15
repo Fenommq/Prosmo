@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<title>Preview seed</title>
+<style>body{background:#120e0b;color:#c9a45c;font:14px sans-serif;padding:40px}</style>
+</head>
+<body>
+<p id="status">Готовим предпросмотр…</p>
+<script>
+(async function () {
+  const status = document.getElementById('status');
+  const params = new URLSearchParams(location.search);
+  const theme = params.get('theme');
+  const seed = params.get('seed') === '1';
+  const clear = params.get('clear') === '1';
+  const to = params.get('to') || '#/';
+
+  try {
+    if (theme) localStorage.setItem('watchlist-theme', theme);
+  } catch (e) {}
+
+  if (clear) {
+    try { localStorage.removeItem('watchlist-studio.session'); } catch (e) {}
+    try { localStorage.removeItem('watchlist-studio.state'); } catch (e) {}
+  }
+
+  const poster = (label, c1, c2, accent) => {
+    const cv = document.createElement('canvas');
+    cv.width = 600; cv.height = 900;
+    const ctx = cv.getContext('2d');
+    const g = ctx.createLinearGradient(0, 0, 600, 900);
+    g.addColorStop(0, c1); g.addColorStop(1, c2);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 600, 900);
+    const rg = ctx.createRadialGradient(300, 330, 40, 300, 330, 430);
+    rg.addColorStop(0, 'rgba(255,255,255,.16)');
+    rg.addColorStop(1, 'rgba(0,0,0,.35)');
+    ctx.fillStyle = rg; ctx.fillRect(0, 0, 600, 900);
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(0, 640, 600, 260);
+    ctx.strokeStyle = accent || 'rgba(201,164,92,.7)';
+    ctx.lineWidth = 3; ctx.strokeRect(20, 20, 560, 860);
+    ctx.fillStyle = 'rgba(245,235,218,.94)';
+    ctx.textAlign = 'center';
+    ctx.font = 'italic 46px Georgia';
+    cv.getContext('2d').fillText(label, 300, 735);
+    ctx.font = '600 15px Arial';
+    ctx.letterSpacing = '6px';
+    ctx.fillStyle = 'rgba(201,164,92,.9)';
+    ctx.fillText('КИНОАРХИВ', 300, 795);
+    return cv.toDataURL('image/jpeg', 0.86);
+  };
+
+  if (seed) {
+    const now = Date.now();
+    const state = {
+      version: 1,
+      users: [
+        { id: 'preview-user', name: 'Ноар', salt: '00', hash: '00', createdAt: now - 86400000 }
+      ],
+      boards: [
+        {
+          id: 'b-weekend',
+          ownerId: 'preview-user',
+          title: 'Посмотреть на выходных',
+          desc: 'Медленные, мрачные и очень красивые истории. Для вечера, когда хочется тишины и хорошего света.',
+          isPublic: true,
+          createdAt: now - 7200000,
+          updatedAt: now - 3600000
+        },
+        {
+          id: 'b-private',
+          ownerId: 'preview-user',
+          title: 'Закрытая коллекция',
+          desc: 'Только для себя: то, что ещё не решено смотреть.',
+          isPublic: false,
+          createdAt: now - 172800000,
+          updatedAt: now - 86400000
+        }
+      ],
+      items: [
+        {
+          id: 'i1', boardId: 'b-weekend', title: 'Дюна: Часть вторая', type: 'movie', year: '2024',
+          desc: 'Пустыня, пророчество и звук, от которого дрожат стены. Большое кино для большого экрана.',
+          image: poster('DUNE', '#5a4a34', '#241a12'), watched: true, watchedAt: now - 3600000, createdAt: now - 5000000
+        },
+        {
+          id: 'i2', boardId: 'b-weekend', title: 'Тьма', type: 'series', year: '2017',
+          desc: 'Немецкий детектив о городе, где время идёт по кругу, а семейные тайны страшнее любого чудовища.',
+          image: poster('DARK', '#3f4a3a', '#161d16'), watched: false, createdAt: now - 4000000
+        },
+        {
+          id: 'i3', boardId: 'b-weekend', title: 'Идеальные дни', type: 'movie', year: '2023',
+          desc: 'Тихая история о человеке, который слушает деревья и утренний свет.',
+          image: poster('PERFECT DAYS', '#5c3a2c', '#211310'), watched: true, watchedAt: now - 7200000, createdAt: now - 3000000
+        },
+        {
+          id: 'i4', boardId: 'b-weekend', title: 'Монстр', type: 'movie', year: '2023',
+          desc: 'Три взгляда на одну и ту же историю. Кто здесь на самом деле чудовище — решать зрителю.',
+          image: poster('MONSTER', '#4c4634', '#1d1a14'), watched: false, createdAt: now - 2000000
+        },
+        {
+          id: 'i5', boardId: 'b-weekend', title: 'Атака титанов', type: 'anime', year: '2013',
+          desc: 'Стены, титаны и цена свободы. История, которая начинается как выживание, а заканчивается вопросом о природе человека.',
+          image: poster('AOT', '#3e3a46', '#151319'), watched: false, createdAt: now - 1000000
+        },
+        {
+          id: 'i6', boardId: 'b-private', title: 'Лунный свет', type: 'movie', year: '2016',
+          desc: 'Тихая драма о взрослении, нежности и свете в темноте.',
+          image: '', watched: false, createdAt: now - 900000
+        },
+        {
+          id: 'i7', boardId: 'b-private', title: 'Сёгун', type: 'series', year: '2024',
+          desc: 'Политика, честь и выживание в феодальной Японии.',
+          image: '', watched: false, createdAt: now - 800000
+        }
+      ]
+    };
+
+    status.textContent = 'Записываем данные…';
+
+    // localStorage — основной резерв и быстрый путь для предпросмотра
+    try {
+      localStorage.setItem('watchlist-studio.state', JSON.stringify(state));
+      localStorage.setItem('watchlist-studio.session', 'preview-user');
+    } catch (e) {}
+
+    // IndexedDB (с таймаутом, чтобы предпросмотр не завис)
+    try {
+      await Promise.race([
+        new Promise((resolve, reject) => {
+          const req = indexedDB.open('watchlist-studio', 1);
+          req.onupgradeneeded = () => {
+            const db = req.result;
+            if (!db.objectStoreNames.contains('kv')) db.createObjectStore('kv');
+          };
+          req.onsuccess = () => {
+            const db = req.result;
+            const tx = db.transaction('kv', 'readwrite');
+            tx.objectStore('kv').put(state, 'state');
+            tx.oncomplete = () => { db.close(); resolve(); };
+            tx.onerror = () => reject(tx.error);
+          };
+          req.onerror = () => reject(req.error);
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1200))
+      ]);
+    } catch (e) {
+      console.warn('IDB seed skipped', e);
+    }
+  }
+
+  status.textContent = 'Открываем сайт…';
+  location.replace('index.html' + to);
+})();
+</script>
+</body>
+</html>
